@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1 class="fw-bold mb-4">作品集</h1>
+
+<div class="row g-4">
+
+    <!-- 作品卡片 1 -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">🌐 個人網站</h5>
+                <p class="card-text text-muted">用 Flask + Bootstrap 建立的個人作品集與部落格網站。</p>
+                <div class="mt-2">
+                    <span class="badge bg-dark me-1">Python</span>
+                    <span class="badge bg-secondary me-1">Flask</span>
+                    <span class="badge bg-secondary">Bootstrap</span>
+                </div>
+            </div>
+            <div class="card-footer bg-white border-0">
+                <a href="https://github.com" class="btn btn-outline-dark btn-sm">GitHub</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 作品卡片 2 -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">📝 專案名稱</h5>
+                <p class="card-text text-muted">在這裡填入你的專案簡介說明。</p>
+                <div class="mt-2">
+                    <span class="badge bg-dark me-1">Python</span>
+                    <span class="badge bg-secondary">其他技術</span>
+                </div>
+            </div>
+            <div class="card-footer bg-white border-0">
+                <a href="#" class="btn btn-outline-dark btn-sm">GitHub</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
