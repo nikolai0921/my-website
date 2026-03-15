@@ -3,11 +3,24 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from dotenv import load_dotenv
+import cloudinary
+import cloudinary.uploader
+import os
+
+load_dotenv()
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///blog.db"
-app.config["SECRET_KEY"] = "your-secret-key-123"
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
+
+cloudinary.config(
+    cloud_name=os.getenv("CLOUD_NAME"),
+    api_key=os.getenv("API_KEY"),
+    api_secret=os.getenv("API_SECRET")
+)
+
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
@@ -121,7 +134,14 @@ def search():
         Post.title.contains(query) | Post.content.contains(query)
     ).order_by(Post.created_at.desc()).all()
     return render_template("search.html", posts=posts, query=query)
-
+@app.route("/upload_image", methods=["POST"])
+@login_required
+def upload_image():
+    if 'image' not in request.files:
+        return {"error": "沒有圖片"}, 400
+    file = request.files['image']
+    result = cloudinary.uploader.upload(file)
+    return {"url": result["secure_url"]}
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
