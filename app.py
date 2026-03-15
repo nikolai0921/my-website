@@ -7,28 +7,36 @@ from datetime import datetime
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///blog.db"
 app.config["SECRET_KEY"] = "your-secret-key-123"
+app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 
-# 使用者模型
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
 
-# 文章模型
+class Tag(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True, nullable=False)
+
+post_tags = db.Table('post_tags',
+    db.Column('post_id', db.Integer, db.ForeignKey('post.id')),
+    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'))
+)
+
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    tags = db.relationship('Tag', secondary=post_tags, backref='posts')
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# 建立資料庫與預設帳號
 with app.app_context():
     db.create_all()
     if not User.query.filter_by(username="admin").first():
@@ -62,6 +70,13 @@ def post_detail(post_id):
 def new_post():
     if request.method == "POST":
         post = Post(title=request.form["title"], content=request.form["content"])
+        tag_names = [t.strip() for t in request.form.get("tags", "").split(",") if t.strip()]
+        for name in tag_names:
+            tag = Tag.query.filter_by(name=name).first()
+            if not tag:
+                tag = Tag(name=name)
+                db.session.add(tag)
+            post.tags.append(tag)
         db.session.add(post)
         db.session.commit()
         return redirect(url_for("blog"))
@@ -74,6 +89,14 @@ def edit_post(post_id):
     if request.method == "POST":
         post.title = request.form["title"]
         post.content = request.form["content"]
+        post.tags.clear()
+        tag_names = [t.strip() for t in request.form.get("tags", "").split(",") if t.strip()]
+        for name in tag_names:
+            tag = Tag.query.filter_by(name=name).first()
+            if not tag:
+                tag = Tag(name=name)
+                db.session.add(tag)
+            post.tags.append(tag)
         db.session.commit()
         return redirect(url_for("post_detail", post_id=post.id))
     return render_template("edit_post.html", post=post)
@@ -85,6 +108,19 @@ def delete_post(post_id):
     db.session.delete(post)
     db.session.commit()
     return redirect(url_for("blog"))
+
+@app.route("/tag/<string:tag_name>")
+def tag_posts(tag_name):
+    tag = Tag.query.filter_by(name=tag_name).first_or_404()
+    return render_template("tag_posts.html", tag=tag, posts=tag.posts)
+
+@app.route("/search")
+def search():
+    query = request.args.get("q", "")
+    posts = Post.query.filter(
+        Post.title.contains(query) | Post.content.contains(query)
+    ).order_by(Post.created_at.desc()).all()
+    return render_template("search.html", posts=posts, query=query)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():

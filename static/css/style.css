@@ -67,3 +67,42 @@ footer {
     font-size: 0.9rem;
     color: #999;
 }
+/* ===== 深色模式 ===== */
+body.dark-mode {
+    background-color: #1a1a2e;
+    color: #e0e0e0;
+}
+
+body.dark-mode .navbar {
+    background-color: #16213e !important;
+}
+
+body.dark-mode .card {
+    background-color: #16213e;
+    color: #e0e0e0;
+}
+
+body.dark-mode footer {
+    background-color: #16213e;
+    color: #aaa;
+}
+
+body.dark-mode .btn-outline-dark {
+    color: #e0e0e0;
+    border-color: #e0e0e0;
+}
+
+body.dark-mode .btn-outline-dark:hover {
+    background-color: #e0e0e0;
+    color: #1a1a2e;
+}
+
+body.dark-mode .text-muted {
+    color: #aaa !important;
+}
+
+body.dark-mode .form-control {
+    background-color: #16213e;
+    color: #e0e0e0;
+    border-color: #444;
+}

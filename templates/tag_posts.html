@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1 class="mb-2">標籤：{{ tag.name }}</h1>
+<p class="text-muted mb-4">共 {{ posts|length }} 篇文章</p>
+
+{% if posts %}
+    {% for post in posts %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">{{ post.title }}</h5>
+            <p class="text-muted small">{{ post.created_at.strftime("%Y-%m-%d") }}</p>
+            <a href="/blog/{{ post.id }}" class="btn btn-outline-dark btn-sm">閱讀更多</a>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <p>這個標籤還沒有文章。</p>
+{% endif %}
+
+<a href="/blog" class="btn btn-outline-secondary mt-3">← 回部落格</a>
+
+{% endblock %}

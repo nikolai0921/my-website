@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1 class="mb-4">搜尋結果：「{{ query }}」</h1>
+
+{% if posts %}
+    <p class="text-muted">共找到 {{ posts|length }} 篇文章</p>
+    {% for post in posts %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">{{ post.title }}</h5>
+            <p class="text-muted small">{{ post.created_at.strftime("%Y-%m-%d") }}</p>
+            <a href="/blog/{{ post.id }}" class="btn btn-outline-dark btn-sm">閱讀更多</a>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <p>找不到相關文章，試試其他關鍵字吧！</p>
+{% endif %}
+
+<a href="/blog" class="btn btn-outline-secondary mt-3">← 回部落格</a>
+
+{% endblock %}
